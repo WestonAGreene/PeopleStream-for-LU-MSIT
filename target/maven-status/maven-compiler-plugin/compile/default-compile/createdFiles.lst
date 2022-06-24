@@ -1,0 +1,8 @@
+examples/model/DataRecord.class
+examples/ProducerExample.class
+examples/ProducerExample$1.class
+examples/DataRecordAvro$1.class
+examples/DataRecordAvro$Builder.class
+examples/DataRecordAvro.class
+examples/ConsumerExample.class
+examples/StreamsExample.class

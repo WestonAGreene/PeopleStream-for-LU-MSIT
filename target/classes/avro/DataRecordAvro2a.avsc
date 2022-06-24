@@ -1,0 +1,8 @@
+{"namespace": "examples",
+ "type": "record",
+ "name": "DataRecordAvro",
+ "fields": [
+     {"name": "count", "type": "long"},
+     {"name": "region", "type": "string"}
+ ]
+}
