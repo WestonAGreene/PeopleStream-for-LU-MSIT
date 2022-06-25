@@ -1,6 +1,6 @@
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/personCanonMerger.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/IntegrationB.java
-/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/IntegrationARetrieval.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/IntegrationA.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/PersonCanonSerializer.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/PersonCanonDeserializer.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/integrationBTransformerTo.java

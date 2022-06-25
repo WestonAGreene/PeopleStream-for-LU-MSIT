@@ -4,7 +4,7 @@ integrationARetriever/integrationBUpdater.class
 integrationARetriever/integrationATransformer.class
 integrationARetriever/dataModels/PersonCanon.class
 integrationARetriever/dataModels/PersonCanonSerializer.class
-integrationARetriever/dataModels/IntegrationARetrieval.class
+integrationARetriever/dataModels/IntegrationA.class
 integrationARetriever/integrationBUpdater$1.class
 integrationARetriever/dataModels/PersonCanonDeserializer.class
 integrationARetriever/personCanonMerger$1.class

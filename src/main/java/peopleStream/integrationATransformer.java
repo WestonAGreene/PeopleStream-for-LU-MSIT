@@ -25,7 +25,7 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-import peopleStream.dataModels.IntegrationARetrieval;
+import peopleStream.dataModels.IntegrationA;
 import peopleStream.dataModels.PersonCanon;
 
 import org.apache.kafka.common.serialization.Deserializer;
@@ -71,13 +71,13 @@ public class integrationATransformer {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        final Serde<IntegrationARetrieval> IntegrationARetrieval = getJsonSerdeIntegrationARetrieval();
+        final Serde<IntegrationA> IntegrationA = getJsonSerdeIntegrationA();
         final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
 
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, IntegrationARetrieval> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationARetrieval));
+        final KStream<String, IntegrationA> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationA));
 
-        recordsRetrieved.print(Printed.<String, IntegrationARetrieval>toSysOut().withLabel("Consumed record"));
+        recordsRetrieved.print(Printed.<String, IntegrationA>toSysOut().withLabel("Consumed record"));
         
 
         KStream<String, PersonCanon> recordsTransformed = recordsRetrieved.mapValues(
@@ -95,15 +95,15 @@ public class integrationATransformer {
 
     }
 
-    private static Serde<IntegrationARetrieval> getJsonSerdeIntegrationARetrieval(){
+    private static Serde<IntegrationA> getJsonSerdeIntegrationA(){
 
         Map<String, Object> serdeProps = new HashMap<>();
-        serdeProps.put("json.value.type", IntegrationARetrieval.class);
+        serdeProps.put("json.value.type", IntegrationA.class);
 
-        final Serializer<IntegrationARetrieval> mySerializer = new KafkaJsonSerializer<>();
+        final Serializer<IntegrationA> mySerializer = new KafkaJsonSerializer<>();
         mySerializer.configure(serdeProps, false);
 
-        final Deserializer<IntegrationARetrieval> myDeserializer = new KafkaJsonDeserializer<>();
+        final Deserializer<IntegrationA> myDeserializer = new KafkaJsonDeserializer<>();
         myDeserializer.configure(serdeProps, false);
 
         return Serdes.serdeFrom(mySerializer, myDeserializer);

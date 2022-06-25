@@ -11,7 +11,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 
-import peopleStream.dataModels.IntegrationARetrieval;
+import peopleStream.dataModels.IntegrationA;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class integrationARetriever {
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaJsonSerializer");
 
-    Producer<String, IntegrationARetrieval> producer = new KafkaProducer<String, IntegrationARetrieval>(props);
+    Producer<String, IntegrationA> producer = new KafkaProducer<String, IntegrationA>(props);
 
 
     System.out.printf("%n%n Produce a key and it's data to topic %s. (Set a key of 'q' to quit.) %n", topic);
@@ -80,9 +80,9 @@ public class integrationARetriever {
         if (!userInputKey.toLowerCase().equals("q")) {
           System.out.printf("Data for key: %n");
           userInputData = input.next();
-          IntegrationARetrieval record = new IntegrationARetrieval(userInputData);
+          IntegrationA record = new IntegrationA(userInputData);
           System.out.printf("Producing record: %s\t%s%n", userInputKey, record);
-          producer.send(new ProducerRecord<String, IntegrationARetrieval>(topic, userInputKey, record), new Callback() {
+          producer.send(new ProducerRecord<String, IntegrationA>(topic, userInputKey, record), new Callback() {
               @Override
               public void onCompletion(RecordMetadata m, Exception e) {
                 if (e != null) {
