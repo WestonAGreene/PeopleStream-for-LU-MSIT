@@ -1,4 +1,4 @@
-package integrationARetriever;
+package peopleStream;
 
 import java.util.Properties;
 
@@ -25,8 +25,8 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-import integrationARetriever.dataModels.IntegrationB;
-import integrationARetriever.dataModels.PersonCanon;
+import peopleStream.dataModels.IntegrationARetrieval;
+import peopleStream.dataModels.PersonCanon;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -44,7 +44,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class integrationBTransformerTo {
+public class integrationATransformer {
 
     public static void main(String[] args) throws Exception {
 
@@ -66,25 +66,25 @@ public class integrationBTransformerTo {
         // Follow these instructions to create this file: https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/java.html
 
         // Add additional properties.
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationBTransformerTo");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationATransformer");
         // Disable caching to print the aggregation value after each record
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
+        final Serde<IntegrationARetrieval> IntegrationARetrieval = getJsonSerdeIntegrationARetrieval();
         final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
-        final Serde<IntegrationB> IntegrationB = getJsonSerdeIntegrationB();
 
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, PersonCanon> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), PersonCanon));
+        final KStream<String, IntegrationARetrieval> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationARetrieval));
 
-        recordsRetrieved.print(Printed.<String, PersonCanon>toSysOut().withLabel("Consumed record"));
+        recordsRetrieved.print(Printed.<String, IntegrationARetrieval>toSysOut().withLabel("Consumed record"));
         
 
-        KStream<String, IntegrationB> recordsTransformed = recordsRetrieved.mapValues(
-          record -> new IntegrationB(String.format("%s-TRANSFORMED-for-B", record.getData()))
+        KStream<String, PersonCanon> recordsTransformed = recordsRetrieved.mapValues(
+          record -> new PersonCanon(String.format("%s-TRANSFORMED", record.getData()))
         );
-        recordsTransformed.print(Printed.<String, IntegrationB>toSysOut().withLabel("Transformed record"));
-        recordsTransformed.to(topicOut, Produced.with(Serdes.String(), IntegrationB));
+        recordsTransformed.print(Printed.<String, PersonCanon>toSysOut().withLabel("Transformed record"));
+        recordsTransformed.to(topicOut, Produced.with(Serdes.String(), PersonCanon));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         
@@ -95,15 +95,15 @@ public class integrationBTransformerTo {
 
     }
 
-    private static Serde<IntegrationB> getJsonSerdeIntegrationB(){
+    private static Serde<IntegrationARetrieval> getJsonSerdeIntegrationARetrieval(){
 
         Map<String, Object> serdeProps = new HashMap<>();
-        serdeProps.put("json.value.type", IntegrationB.class);
+        serdeProps.put("json.value.type", IntegrationARetrieval.class);
 
-        final Serializer<IntegrationB> mySerializer = new KafkaJsonSerializer<>();
+        final Serializer<IntegrationARetrieval> mySerializer = new KafkaJsonSerializer<>();
         mySerializer.configure(serdeProps, false);
 
-        final Deserializer<IntegrationB> myDeserializer = new KafkaJsonDeserializer<>();
+        final Deserializer<IntegrationARetrieval> myDeserializer = new KafkaJsonDeserializer<>();
         myDeserializer.configure(serdeProps, false);
 
         return Serdes.serdeFrom(mySerializer, myDeserializer);

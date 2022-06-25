@@ -1,4 +1,4 @@
-package integrationARetriever;
+package peopleStream;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -11,7 +11,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 
-import integrationARetriever.dataModels.IntegrationARetrieval;
+import peopleStream.dataModels.IntegrationARetrieval;
 
 import java.io.FileInputStream;
 import java.io.IOException;

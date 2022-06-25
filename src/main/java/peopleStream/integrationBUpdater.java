@@ -1,4 +1,4 @@
-package integrationARetriever;
+package peopleStream;
 
 import java.util.Properties;
 
@@ -26,8 +26,8 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-import integrationARetriever.dataModels.IntegrationB;
-import integrationARetriever.dataModels.IntegrationB;
+import peopleStream.dataModels.IntegrationB;
+import peopleStream.dataModels.IntegrationB;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;

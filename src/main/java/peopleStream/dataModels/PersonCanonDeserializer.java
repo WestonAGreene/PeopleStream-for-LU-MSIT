@@ -1,4 +1,4 @@
-package integrationARetriever.dataModels;
+package peopleStream.dataModels;
 
 // resource: https://github.com/DavidCorral94/Kafka-Streams-Custom-Seder
 import com.google.gson.Gson;

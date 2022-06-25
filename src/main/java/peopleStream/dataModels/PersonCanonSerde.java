@@ -1,4 +1,4 @@
-package integrationARetriever.dataModels;
+package peopleStream.dataModels;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;

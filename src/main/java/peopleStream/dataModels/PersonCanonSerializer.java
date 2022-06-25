@@ -1,4 +1,4 @@
-package integrationARetriever.dataModels;
+package peopleStream.dataModels;
 
 import com.google.gson.Gson;
 import org.apache.kafka.common.serialization.Serializer;

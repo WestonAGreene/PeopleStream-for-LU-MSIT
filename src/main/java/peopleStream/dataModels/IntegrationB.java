@@ -1,13 +1,13 @@
-package integrationARetriever.dataModels;
+package peopleStream.dataModels;
 
-public class IntegrationARetrieval {
+public class IntegrationB {
 
     String data;
 
-    public IntegrationARetrieval() {
+    public IntegrationB() {
     }
 
-    public IntegrationARetrieval(String data) {
+    public IntegrationB(String data) {
         this.data = data;
     }
 

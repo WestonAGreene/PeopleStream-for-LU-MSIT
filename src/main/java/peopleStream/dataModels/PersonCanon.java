@@ -1,4 +1,4 @@
-package integrationARetriever.dataModels;
+package peopleStream.dataModels;
 
 public class PersonCanon {
 
