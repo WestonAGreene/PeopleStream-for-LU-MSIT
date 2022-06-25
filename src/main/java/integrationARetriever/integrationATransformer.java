@@ -71,17 +71,20 @@ public class integrationATransformer {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        final Serde<IntegrationARetrieval> IntegrationARetrieval = getJsonSerde();
+        final Serde<IntegrationARetrieval> IntegrationARetrieval = getJsonSerdeIntegrationARetrieval();
+        final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
 
         final StreamsBuilder builder = new StreamsBuilder();
         final KStream<String, IntegrationARetrieval> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationARetrieval));
 
-        recordsRetrieved.print(Printed.<String,IntegrationARetrieval>toSysOut().withLabel("Consumed record"));
+        recordsRetrieved.print(Printed.<String, IntegrationARetrieval>toSysOut().withLabel("Consumed record"));
         
-        recordsRetrieved.to(topicOut, Produced.with(Serdes.String(), IntegrationARetrieval));
-        // KStream<String,String> recordsTransformed = recordsRetrieved.collect()
-        //   .toStream();
-        // recordsTransformed.to(topicOut, Produced.with(Serdes.String(), IntegrationARetrieval));
+
+        KStream<String, PersonCanon> recordsTransformed = recordsRetrieved.mapValues(
+          record -> new PersonCanon(String.format("%s-TRANSFORMED", record.getData()))
+        );
+        recordsTransformed.print(Printed.<String, PersonCanon>toSysOut().withLabel("Transformed record"));
+        recordsTransformed.to(topicOut, Produced.with(Serdes.String(), PersonCanon));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         
@@ -92,7 +95,7 @@ public class integrationATransformer {
 
     }
 
-    private static Serde<IntegrationARetrieval> getJsonSerde(){
+    private static Serde<IntegrationARetrieval> getJsonSerdeIntegrationARetrieval(){
 
         Map<String, Object> serdeProps = new HashMap<>();
         serdeProps.put("json.value.type", IntegrationARetrieval.class);
@@ -101,6 +104,20 @@ public class integrationATransformer {
         mySerializer.configure(serdeProps, false);
 
         final Deserializer<IntegrationARetrieval> myDeserializer = new KafkaJsonDeserializer<>();
+        myDeserializer.configure(serdeProps, false);
+
+        return Serdes.serdeFrom(mySerializer, myDeserializer);
+    }
+
+    private static Serde<PersonCanon> getJsonSerdePersonCanon(){
+
+        Map<String, Object> serdeProps = new HashMap<>();
+        serdeProps.put("json.value.type", PersonCanon.class);
+
+        final Serializer<PersonCanon> mySerializer = new KafkaJsonSerializer<>();
+        mySerializer.configure(serdeProps, false);
+
+        final Deserializer<PersonCanon> myDeserializer = new KafkaJsonDeserializer<>();
         myDeserializer.configure(serdeProps, false);
 
         return Serdes.serdeFrom(mySerializer, myDeserializer);
