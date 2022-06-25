@@ -1,6 +1,8 @@
+integrationAReciever/dataModels/PersonCanon.class
 examples/model/DataRecord.class
 examples/ProducerExample.class
 integrationAReciever/dataModels/IntegrationARetrieval.class
+integrationAReciever/integrationATransformer.class
 examples/ProducerExample$1.class
 integrationAReciever/integrationAReciever$1.class
 examples/ConsumerExample.class

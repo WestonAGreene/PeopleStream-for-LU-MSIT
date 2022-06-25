@@ -1,6 +1,8 @@
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/StreamsExample.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationAReciever/integrationATransformer.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/model/DataRecord.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationAReciever/integrationAReciever.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/ProducerExample.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationAReciever/dataModels/IntegrationARetrieval.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationAReciever/dataModels/PersonCanon.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/ConsumerExample.java

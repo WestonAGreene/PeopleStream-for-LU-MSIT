@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit;
 
 
 public class integrationAReciever {
@@ -45,7 +45,7 @@ public class integrationAReciever {
       }
   }
 
-  public static void main(final String[] args) throws IOException {
+  public static void main(final String[] args) throws IOException, InterruptedException {
     if (args.length != 2) {
       System.out.println("Please provide command line arguments: configPath topic");
       System.exit(1);
