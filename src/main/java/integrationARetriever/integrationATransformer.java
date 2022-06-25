@@ -1,4 +1,4 @@
-package integrationAReciever;
+package integrationARetriever;
 
 import java.util.Properties;
 
@@ -18,8 +18,8 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-import integrationAReciever.dataModels.IntegrationARetrieval;
-import integrationAReciever.dataModels.PersonCanon;
+import integrationARetriever.dataModels.IntegrationARetrieval;
+import integrationARetriever.dataModels.PersonCanon;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;

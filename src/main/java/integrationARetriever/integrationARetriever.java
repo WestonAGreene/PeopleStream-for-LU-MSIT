@@ -1,4 +1,4 @@
-package integrationAReciever;
+package integrationARetriever;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -11,7 +11,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 
-import integrationAReciever.dataModels.IntegrationARetrieval;
+import integrationARetriever.dataModels.IntegrationARetrieval;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 
-public class integrationAReciever {
+public class integrationARetriever {
 
   // Create topic in Confluent Cloud
   public static void createTopic(final String topic,

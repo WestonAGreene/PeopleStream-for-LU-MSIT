@@ -1,13 +1,13 @@
-package integrationAReciever.dataModels;
+package integrationARetriever.dataModels;
 
-public class IntegrationARetrieval {
+public class PersonCanon {
 
     String data;
 
-    public IntegrationARetrieval() {
+    public PersonCanon() {
     }
 
-    public IntegrationARetrieval(String data) {
+    public PersonCanon(String data) {
         this.data = data;
     }
 
