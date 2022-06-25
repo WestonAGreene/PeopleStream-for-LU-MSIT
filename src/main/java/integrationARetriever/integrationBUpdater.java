@@ -14,6 +14,7 @@ import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KGroupedStream;
@@ -26,7 +27,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import integrationARetriever.dataModels.IntegrationB;
-import integrationARetriever.dataModels.PersonCanon;
+import integrationARetriever.dataModels.IntegrationB;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -44,12 +45,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class integrationBTransformerTo {
+public class integrationBUpdater {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 3) {
-          System.out.println("Please provide command line arguments: configPath topicIn topicOut");
+        if (args.length != 2) {
+          System.out.println("Please provide command line arguments: configPath topicIn");
           System.exit(1);
         }
     
@@ -57,8 +58,6 @@ public class integrationBTransformerTo {
 
         final String topicIn = args[1];
         createTopic(topicIn, props);
-        final String topicOut = args[2];
-        createTopic(topicOut, props);
     
         // Load properties from a local configuration file
         // Create the configuration file (e.g. at '$HOME/.confluent/java.config') with configuration parameters
@@ -66,26 +65,32 @@ public class integrationBTransformerTo {
         // Follow these instructions to create this file: https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/java.html
 
         // Add additional properties.
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationBTransformerTo");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationBUpdater");
         // Disable caching to print the aggregation value after each record
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
         final Serde<IntegrationB> IntegrationB = getJsonSerdeIntegrationB();
 
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, PersonCanon> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), PersonCanon));
+        final KStream<String, IntegrationB> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationB));
 
-        recordsRetrieved.print(Printed.<String, PersonCanon>toSysOut().withLabel("Consumed record"));
+        recordsRetrieved.print(Printed.<String, IntegrationB>toSysOut().withLabel("Consumed record"));
+
+        // recordsRetrieved.<String, IntegrationB>map((k, v) -> 
+        //   // readTxtFile();
+        //   // createTreeMapFromRows();
+        //   // updateTreeMapFromKafkaMsg();
+        //   // writeTxtFile();
+        // );
+
+        // resource: https://stackoverflow.com/questions/39327868/print-kafka-stream-input-out-to-console
+        recordsRetrieved.foreach(new ForeachAction<String, IntegrationB>() {
+            public void apply(String key, IntegrationB value) {
+                System.out.println("Key:" + key + " | Value: " + value.toString());
+            }
+        });
         
-
-        KStream<String, IntegrationB> recordsTransformed = recordsRetrieved.mapValues(
-          record -> new IntegrationB(String.format("%s-TRANSFORMED-for-B", record.getData()))
-        );
-        recordsTransformed.print(Printed.<String, IntegrationB>toSysOut().withLabel("Transformed record"));
-        recordsTransformed.to(topicOut, Produced.with(Serdes.String(), IntegrationB));
-
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         
         streams.start();
@@ -104,20 +109,6 @@ public class integrationBTransformerTo {
         mySerializer.configure(serdeProps, false);
 
         final Deserializer<IntegrationB> myDeserializer = new KafkaJsonDeserializer<>();
-        myDeserializer.configure(serdeProps, false);
-
-        return Serdes.serdeFrom(mySerializer, myDeserializer);
-    }
-
-    private static Serde<PersonCanon> getJsonSerdePersonCanon(){
-
-        Map<String, Object> serdeProps = new HashMap<>();
-        serdeProps.put("json.value.type", PersonCanon.class);
-
-        final Serializer<PersonCanon> mySerializer = new KafkaJsonSerializer<>();
-        mySerializer.configure(serdeProps, false);
-
-        final Deserializer<PersonCanon> myDeserializer = new KafkaJsonDeserializer<>();
         myDeserializer.configure(serdeProps, false);
 
         return Serdes.serdeFrom(mySerializer, myDeserializer);
