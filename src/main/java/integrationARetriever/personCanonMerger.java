@@ -26,6 +26,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import integrationARetriever.dataModels.PersonCanon;
+import integrationARetriever.dataModels.PersonCanonSerde;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -74,7 +75,7 @@ public class personCanonMerger {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 3) {
+        if (args.length != 4) {
           System.out.println("Please provide command line arguments: configPath topicIn topicOut topicTableOut");
           System.exit(1);
         }
@@ -85,7 +86,7 @@ public class personCanonMerger {
         createTopic(topicIn, props);
         final String topicOut = args[2];
         createTopic(topicOut, props);
-        final String topicTableOut = args[2];
+        final String topicTableOut = args[3];
         createTopic(topicTableOut, props);
     
         // Load properties from a local configuration file
@@ -99,19 +100,7 @@ public class personCanonMerger {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon.getClass().getName());
-        // final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon.String());
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serde.class);
-        // final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon.class);
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon.class);
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon().getClass().getName());
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon.getClass().getName());
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon);
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanon().getClass());
-        // props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.PersonCanon.getClass());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanonSerde.class);
 
         final personCanonMerger instance = new personCanonMerger();
         final Topology topology = instance.buildTopology(props, topicIn, topicOut, topicTableOut);

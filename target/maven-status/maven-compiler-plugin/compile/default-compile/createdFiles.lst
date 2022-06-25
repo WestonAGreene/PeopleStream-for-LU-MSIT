@@ -3,10 +3,13 @@ integrationARetriever/personCanonMerger.class
 integrationARetriever/integrationATransformer.class
 examples/ProducerExample.class
 integrationARetriever/dataModels/PersonCanon.class
+integrationARetriever/dataModels/PersonCanonSerializer.class
 integrationARetriever/dataModels/IntegrationARetrieval.class
 examples/StreamsExample.class
+integrationARetriever/dataModels/PersonCanonDeserializer.class
 integrationARetriever/personCanonMerger$1.class
 examples/ProducerExample$1.class
 integrationARetriever/integrationARetriever.class
 examples/ConsumerExample.class
 integrationARetriever/integrationARetriever$1.class
+integrationARetriever/dataModels/PersonCanonSerde.class

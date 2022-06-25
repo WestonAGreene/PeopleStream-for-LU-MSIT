@@ -2,6 +2,9 @@
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/IntegrationARetrieval.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/StreamsExample.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/model/DataRecord.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/PersonCanonSerde.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/PersonCanonSerializer.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/PersonCanonDeserializer.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/examples/ProducerExample.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/integrationATransformer.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/integrationARetriever/dataModels/PersonCanon.java
