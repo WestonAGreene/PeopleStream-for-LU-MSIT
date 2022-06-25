@@ -8,7 +8,7 @@ Set credentials for accessing the Kafka Cluster hosted by Confluent:
         export CONFLUENT_KAFKA_BROKER_PASSWORD=redact
     ```
 
-Run `run.sh`
+Run in separate terminals all `run-*.sh` files. For example:
     ```
-        ./run.sh
+        ./run-personCanonMerger.sh
     ```
