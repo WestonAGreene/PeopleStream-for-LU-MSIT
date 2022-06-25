@@ -4,6 +4,13 @@ import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import org.apache.kafka.common.errors.TopicExistsException;
+
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
@@ -46,14 +53,17 @@ public class integrationATransformer {
           System.exit(1);
         }
     
+        final Properties props = loadConfig(args[0]);
+
         final String topicIn = args[1];
+        createTopic(topicIn, props);
         final String topicOut = args[2];
+        createTopic(topicOut, props);
     
         // Load properties from a local configuration file
         // Create the configuration file (e.g. at '$HOME/.confluent/java.config') with configuration parameters
         // to connect to your Kafka cluster, which can be on your local host, Confluent Cloud, or any other cluster.
         // Follow these instructions to create this file: https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/java.html
-        final Properties props = loadConfig(args[0]);
 
         // Add additional properties.
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationATransformer");
@@ -69,10 +79,12 @@ public class integrationATransformer {
         recordsRetrieved.print(Printed.<String,IntegrationARetrieval>toSysOut().withLabel("Consumed record"));
         
         recordsRetrieved.to(topicOut, Produced.with(Serdes.String(), IntegrationARetrieval));
-        // KStream<String,String> recordsTransformed = recordsRetrieved.toStream();
-        // recordsTransformed.toStream().to(topicOut, Produced.with(Serdes.String(), PersonCanon));
+        // KStream<String,String> recordsTransformed = recordsRetrieved.collect()
+        //   .toStream();
+        // recordsTransformed.to(topicOut, Produced.with(Serdes.String(), IntegrationARetrieval));
 
-        KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        final KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        
         streams.start();
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
@@ -103,6 +115,18 @@ public class integrationATransformer {
         cfg.load(inputStream);
       }
       return cfg;
+    }
+
+    public static void createTopic(final String topic, final Properties cloudConfig) {
+        final NewTopic newTopic = new NewTopic(topic, Optional.empty(), Optional.empty());
+        try (final AdminClient adminClient = AdminClient.create(cloudConfig)) {
+            adminClient.createTopics(Collections.singletonList(newTopic)).all().get();
+        } catch (final InterruptedException | ExecutionException e) {
+            // Ignore if TopicExistsException, which may be valid if topic exists
+            if (!(e.getCause() instanceof TopicExistsException)) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }
