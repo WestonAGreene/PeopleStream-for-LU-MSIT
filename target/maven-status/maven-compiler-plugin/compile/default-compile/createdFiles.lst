@@ -1,10 +1,12 @@
 examples/model/DataRecord.class
+integrationARetriever/personCanonMerger.class
 integrationARetriever/integrationATransformer.class
 examples/ProducerExample.class
 integrationARetriever/dataModels/PersonCanon.class
-examples/ProducerExample$1.class
 integrationARetriever/dataModels/IntegrationARetrieval.class
+examples/StreamsExample.class
+integrationARetriever/personCanonMerger$1.class
+examples/ProducerExample$1.class
 integrationARetriever/integrationARetriever.class
 examples/ConsumerExample.class
-examples/StreamsExample.class
 integrationARetriever/integrationARetriever$1.class
