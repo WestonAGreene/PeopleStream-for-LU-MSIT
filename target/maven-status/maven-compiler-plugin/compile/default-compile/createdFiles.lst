@@ -1,8 +1,8 @@
 examples/model/DataRecord.class
 examples/ProducerExample.class
+integrationAReciever/dataModels/IntegrationARetrieval.class
 examples/ProducerExample$1.class
-examples/DataRecordAvro$1.class
-examples/DataRecordAvro$Builder.class
-examples/DataRecordAvro.class
+integrationAReciever/integrationAReciever$1.class
 examples/ConsumerExample.class
 examples/StreamsExample.class
+integrationAReciever/integrationAReciever.class

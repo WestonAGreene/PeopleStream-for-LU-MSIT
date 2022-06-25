@@ -1,19 +1,4 @@
-/**
- * Copyright 2020 Confluent Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package examples;
+package integrationAReciever;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -26,7 +11,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 
-import examples.model.DataRecord;
+import integrationAReciever.dataModels.IntegrationARetrieval;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,7 +25,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-public class ProducerExample {
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit
+
+
+public class integrationAReciever {
 
   // Create topic in Confluent Cloud
   public static void createTopic(final String topic,
@@ -77,30 +66,37 @@ public class ProducerExample {
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaJsonSerializer");
 
-    Producer<String, DataRecord> producer = new KafkaProducer<String, DataRecord>(props);
+    Producer<String, IntegrationARetrieval> producer = new KafkaProducer<String, IntegrationARetrieval>(props);
 
-    // Produce sample data
-    final Long numMessages = 10L;
-    for (Long i = 0L; i < numMessages; i++) {
-      String key = "alice";
-      DataRecord record = new DataRecord(i);
 
-      System.out.printf("Producing record: %s\t%s%n", key, record);
-      producer.send(new ProducerRecord<String, DataRecord>(topic, key, record), new Callback() {
-          @Override
-          public void onCompletion(RecordMetadata m, Exception e) {
-            if (e != null) {
-              e.printStackTrace();
-            } else {
-              System.out.printf("Produced record to topic %s partition [%d] @ offset %d%n", m.topic(), m.partition(), m.offset());
-            }
-          }
-      });
+    System.out.printf("%n%n Produce a key and it's data to topic %s. (Set a key of 'q' to quit.) %n", topic);
+
+    Scanner input = new Scanner(System.in);
+    String userInputKey = "";
+    String userInputData = "";
+    while (!userInputKey.toLowerCase().equals("q")) {
+        System.out.printf("Key: %n");
+        userInputKey = input.next();
+        if (!userInputKey.toLowerCase().equals("q")) {
+          System.out.printf("Data for key: %n");
+          userInputData = input.next();
+          IntegrationARetrieval record = new IntegrationARetrieval(userInputData);
+          System.out.printf("Producing record: %s\t%s%n", userInputKey, record);
+          producer.send(new ProducerRecord<String, IntegrationARetrieval>(topic, userInputKey, record), new Callback() {
+              @Override
+              public void onCompletion(RecordMetadata m, Exception e) {
+                if (e != null) {
+                  e.printStackTrace();
+                } else {
+                  System.out.printf("Produced record to topic %s partition [%d] @ offset %d%n", m.topic(), m.partition(), m.offset());
+                }
+              }
+          });
+          TimeUnit.SECONDS.sleep(1);
+        }
     }
 
     producer.flush();
-
-    System.out.printf("10 messages were produced to topic %s%n", topic);
 
     producer.close();
   }
