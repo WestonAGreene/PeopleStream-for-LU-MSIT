@@ -103,9 +103,19 @@ public class personCanonMerger {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanonSerde.class);
 
         final personCanonMerger instance = new personCanonMerger();
-        final Topology topology = instance.buildTopology(props, topicIn, topicOut, topicTableOut);
+        final StreamsBuilder builder = new StreamsBuilder();
 
-        final KafkaStreams streams = new KafkaStreams(topology, props);
+        final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
+        final Serde<String> stringSerde = Serdes.String();
+
+        final KStream<String, PersonCanon> stream = builder.stream(topicIn, Consumed.with(stringSerde, PersonCanon));
+
+        stream.to(topicOut, Produced.with(stringSerde, PersonCanon));
+
+        final KTable<String, PersonCanon> convertedTable = stream.toTable(Materialized.as("stream-converted-to-table"));
+        convertedTable.toStream().to(topicTableOut, Produced.with(stringSerde, PersonCanon));
+
+        final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         final CountDownLatch latch = new CountDownLatch(1);
 
         // Attach shutdown handler to catch Control-C.
@@ -164,29 +174,5 @@ public class personCanonMerger {
             }
         }
     }
-
-    public Topology buildTopology(
-      Properties props,
-      String topicIn,
-      String topicOut,
-      String topicTableOut
-    ) {
-        final StreamsBuilder builder = new StreamsBuilder();
-
-        final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
-        final Serde<String> stringSerde = Serdes.String();
-
-        final KStream<String, PersonCanon> stream = builder.stream(topicIn, Consumed.with(stringSerde, PersonCanon));
-
-        final KTable<String, PersonCanon> convertedTable = stream.toTable(Materialized.as("stream-converted-to-table"));
-
-        stream.to(topicOut, Produced.with(stringSerde, PersonCanon));
-        convertedTable.toStream().to(topicTableOut, Produced.with(stringSerde, PersonCanon));
-
-
-        return builder.build();
-    }
-
-
 
 }

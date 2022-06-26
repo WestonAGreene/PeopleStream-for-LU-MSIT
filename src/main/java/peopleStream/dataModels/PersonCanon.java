@@ -3,6 +3,7 @@ package peopleStream.dataModels;
 public class PersonCanon {
 
     String data;
+    Boolean diffValueFromTable;
 
     public PersonCanon() {
     }
@@ -11,8 +12,17 @@ public class PersonCanon {
         this.data = data;
     }
 
+    public PersonCanon(String data, Boolean diffValueFromTable) {
+        this.data = data;
+        this.diffValueFromTable = diffValueFromTable;
+    }
+
     public String getData() {
         return data;
+    }
+
+    public Boolean getDiffValueFromTable() {
+        return diffValueFromTable;
     }
 
     public String toString() {
