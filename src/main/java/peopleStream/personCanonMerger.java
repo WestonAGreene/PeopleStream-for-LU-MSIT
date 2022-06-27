@@ -1,3 +1,7 @@
+// I was unable to query the historical record of the table within the kafkastream.
+// Without the historical record, I was unable to do a merge.
+// A copy of my failed attempts is the personCanonMerger-graveyard.java
+
 package peopleStream;
 
 import java.util.Properties;
@@ -71,11 +75,6 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.StoreQueryParameters;
-import org.apache.kafka.streams.kstream.ForeachAction;
-
 public class personCanonMerger {
 
     public static void main(String[] args) throws Exception {
@@ -114,39 +113,13 @@ public class personCanonMerger {
         final Serde<String> stringSerde = Serdes.String();
 
         final KStream<String, PersonCanon> stream = builder.stream(topicIn, Consumed.with(stringSerde, PersonCanon));
-        stream.print(Printed.<String, PersonCanon>toSysOut().withLabel("Consumed record"));
+
+        stream.to(topicOut, Produced.with(stringSerde, PersonCanon));
+
+        final KTable<String, PersonCanon> convertedTable = stream.toTable(Materialized.as("stream-converted-to-table"));
+        convertedTable.toStream().to(topicTableOut, Produced.with(stringSerde, PersonCanon));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-
-
-
-        // final KStream<String, PersonCanon> streamWMarkDiffValueFromTable = stream.foreach(new ForeachAction<String, PersonCanon>() {
-        //     public KeyValue<String, PersonCanon> apply(String key, PersonCanon value) {
-        //         ReadOnlyKeyValueStore<String, PersonCanon> personCanonTable =
-        //             streams.store(StoreQueryParameters.fromNameAndType(topicTableOut, QueryableStoreTypes.keyValueStore()));
-        //         Boolean diffValueFromTable = personCanonTable.get(key).getData().equals(person.getData());
-        //         return new KeyValue<String, PersonCanon>(key, new PersonCanon(value.getData(), diffValueFromTable));
-        //     }
-        // });
-        KStream<String, PersonCanon> streamWMarkDiffValueFromTable = stream.map((key, value) -> {
-            ReadOnlyKeyValueStore<String, PersonCanon> personCanonTable =
-                streams.store(StoreQueryParameters.fromNameAndType(topicTableOut, QueryableStoreTypes.keyValueStore()));
-            Boolean diffValueFromTable = personCanonTable.get(key).getData().equals(value.getData());
-            return new KeyValue<String, PersonCanon>(key, new PersonCanon(value.getData(), diffValueFromTable));
-        });
-        
-        streamWMarkDiffValueFromTable.print(Printed.<String, PersonCanon>toSysOut().withLabel("Consumed record"));
-
-        streamWMarkDiffValueFromTable
-            .filter((k, v) -> v.getDiffValueFromTable())
-            .to(topicOut, Produced.with(stringSerde, PersonCanon));
-
-        final KTable<String, PersonCanon> convertedTable = streamWMarkDiffValueFromTable.toTable(Materialized.as("stream-converted-to-table"));
-        convertedTable
-            .toStream()
-            .filter((k, v) -> v.getDiffValueFromTable())
-            .to(topicTableOut, Produced.with(stringSerde, PersonCanon));
-
         final CountDownLatch latch = new CountDownLatch(1);
 
         // Attach shutdown handler to catch Control-C.

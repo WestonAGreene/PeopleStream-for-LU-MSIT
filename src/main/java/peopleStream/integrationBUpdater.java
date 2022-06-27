@@ -27,7 +27,6 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import peopleStream.dataModels.IntegrationB;
-import peopleStream.dataModels.IntegrationB;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;

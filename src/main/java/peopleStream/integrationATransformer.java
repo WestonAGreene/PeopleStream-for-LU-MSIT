@@ -44,6 +44,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.StoreQueryParameters;
+import org.apache.kafka.streams.kstream.ForeachAction;
 public class integrationATransformer {
 
     public static void main(String[] args) throws Exception {
@@ -54,37 +58,56 @@ public class integrationATransformer {
         }
     
         final Properties props = loadConfig(args[0]);
-
         final String topicIn = args[1];
         createTopic(topicIn, props);
         final String topicOut = args[2];
         createTopic(topicOut, props);
-    
-        // Load properties from a local configuration file
-        // Create the configuration file (e.g. at '$HOME/.confluent/java.config') with configuration parameters
-        // to connect to your Kafka cluster, which can be on your local host, Confluent Cloud, or any other cluster.
-        // Follow these instructions to create this file: https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/java.html
-
-        // Add additional properties.
+        // final String topicTableIn = "person-canon-table";
+        // createTopic(topicTableIn, props);
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationATransformer");
-        // Disable caching to print the aggregation value after each record
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         final Serde<IntegrationA> IntegrationA = getJsonSerdeIntegrationA();
         final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
+        final Serde<String> stringSerde = Serdes.String();
 
+        // final StreamsBuilder builderForTable = new StreamsBuilder();
+        // final KStream<String, PersonCanon> personCanonTableBuild = builderForTable.stream(topicTableIn, Consumed.with(stringSerde, PersonCanon));
+        // // KGroupedStream<String, PersonCanon> groupedByKey = personCanonTableBuild
+        // //   .selectKey((key, value) -> key);
+        // KGroupedStream<String, PersonCanon> groupedByKey = personCanonTableBuild.groupByKey();
+        // // KGroupedStream<String, PersonCanon> groupedByKey = personCanonTableBuild
+        // //   .groupBy((key, value) -> key, Grouped.with(stringSerde, PersonCanon));
+        // KafkaStreams personaCanonTableStream = new KafkaStreams(builderForTable.build(), props);
+        // personaCanonTableStream.start();
+        // ReadOnlyKeyValueStore<String, PersonCanon> personaCanonTable =
+        //     personaCanonTableStream.store("person-canon-table", QueryableStoreTypes.<String, PersonCanon>keyValueStore());
+        // // ReadOnlyKeyValueStore<String, String> personaCanonTable =
+        // //     personaCanonTableStream.store("person-canon-table", QueryableStoreTypes.<String, String>keyValueStore());
+        //     // personaCanonTableStream.store(StoreQueryParameters.fromNameAndType("person-canon-table-query", QueryableStoreTypes.keyValueStore()));
+        //     // personaCanonTableStream.store("person-canon-table", QueryableStoreTypes.<String, String>keyValueStore());
+        //     // personaCanonTableStream.store("person-canon-table", QueryableStoreTypes.<KeyValue<String, PersonCanon>>keyValueStore());
+        //     // personaCanonTableStream.store("person-canon-table", QueryableStoreTypes.<String>keyValueStore());
+        //     // personaCanonTableStream.store("person-canon-table", QueryableStoreTypes.<String, PersonCanon>keyValueStore());
+        //     // personaCanonTableStream.<String, PersonCanon>store("person-canon-table", QueryableStoreTypes.<String, PersonCanon>keyValueStore());
+        //     // personaCanonTableStream.store(StoreQueryParameters.fromNameAndType("person-canon-table", QueryableStoreTypes.keyValueStore()));
+        
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, IntegrationA> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationA));
+        final KStream<String, IntegrationA> recordsRetrieved = builder.stream(topicIn, Consumed.with(stringSerde, IntegrationA));
 
         recordsRetrieved.print(Printed.<String, IntegrationA>toSysOut().withLabel("Consumed record"));
         
-
         KStream<String, PersonCanon> recordsTransformed = recordsRetrieved.mapValues(
           record -> new PersonCanon(String.format("%s-TRANSFORMED", record.getData()))
         );
         recordsTransformed.print(Printed.<String, PersonCanon>toSysOut().withLabel("Transformed record"));
-        recordsTransformed.to(topicOut, Produced.with(Serdes.String(), PersonCanon));
+        // recordsTransformed.foreach(new ForeachAction<String, PersonCanon>() {
+        //     public void apply(String key, PersonCanon value) {
+        //         System.out.println("Key from table:" + key + " | Value: not yet " + value.toString());
+        //     }
+        // });
+        recordsTransformed.to(topicOut, Produced.with(stringSerde, PersonCanon));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         
