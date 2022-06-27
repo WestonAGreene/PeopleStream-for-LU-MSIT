@@ -48,7 +48,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.kstream.ForeachAction;
-public class integrationATransformer {
+public class integrationATransformerFrom {
 
     public static void main(String[] args) throws Exception {
 
@@ -64,7 +64,7 @@ public class integrationATransformer {
         createTopic(topicOut, props);
         // final String topicTableIn = "person-canon-table";
         // createTopic(topicTableIn, props);
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationATransformer");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationATransformerFrom");
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
