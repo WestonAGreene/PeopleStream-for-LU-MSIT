@@ -1,6 +1,6 @@
 // I was unable to query the historical record of the table within the kafkastream.
 // Without the historical record, I was unable to do a merge.
-// A copy of my failed attempts is the personCanonMerger-graveyard.java
+// A copy of my failed attempts is the personCanonMerger-graveyard.txt
 
 
 package peopleStream;

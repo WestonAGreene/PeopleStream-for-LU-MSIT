@@ -1,7 +1,3 @@
-// I was unable to query the historical record of the table within the kafkastream.
-// Without the historical record, I was unable to do a merge.
-// A copy of my failed attempts is the personCanonMerger-graveyard.txt
-
 package peopleStream;
 
 import java.util.Properties;
@@ -18,6 +14,7 @@ import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KGroupedStream;
@@ -29,8 +26,7 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-import peopleStream.dataModels.PersonCanon;
-import peopleStream.dataModels.PersonCanonSerde;
+import peopleStream.dataModels.IntegrationA;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -48,39 +44,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.kafka.streams.kstream.KTable;
-
-import io.confluent.common.utils.TestUtils;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Produced;
-
-public class personCanonMerger {
+public class integrationAUpdater {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 4) {
-          System.out.println("Please provide command line arguments: configPath topicIn topicOut topicTableOut");
+        if (args.length != 2) {
+          System.out.println("Please provide command line arguments: configPath topicIn");
           System.exit(1);
         }
     
@@ -88,10 +57,6 @@ public class personCanonMerger {
 
         final String topicIn = args[1];
         createTopic(topicIn, props);
-        final String topicOut = args[2];
-        createTopic(topicOut, props);
-        final String topicTableOut = args[3];
-        createTopic(topicTableOut, props);
     
         // Load properties from a local configuration file
         // Create the configuration file (e.g. at '$HOME/.confluent/java.config') with configuration parameters
@@ -99,58 +64,50 @@ public class personCanonMerger {
         // Follow these instructions to create this file: https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/java.html
 
         // Add additional properties.
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "personCanonMerger");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "integrationAUpdater");
         // Disable caching to print the aggregation value after each record
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, PersonCanonSerde.class);
 
-        final personCanonMerger instance = new personCanonMerger();
+        final Serde<IntegrationA> IntegrationA = getJsonSerdeIntegrationA();
+
         final StreamsBuilder builder = new StreamsBuilder();
+        final KStream<String, IntegrationA> recordsRetrieved = builder.stream(topicIn, Consumed.with(Serdes.String(), IntegrationA));
 
-        final Serde<PersonCanon> PersonCanon = getJsonSerdePersonCanon();
-        final Serde<String> stringSerde = Serdes.String();
+        recordsRetrieved.print(Printed.<String, IntegrationA>toSysOut().withLabel("Consumed record"));
 
-        final KStream<String, PersonCanon> stream = builder.stream(topicIn, Consumed.with(stringSerde, PersonCanon));
+        // recordsRetrieved.<String, IntegrationA>map((k, v) -> 
+        //   // readTxtFile();
+        //   // createTreeMapFromRows();
+        //   // updateTreeMapFromKafkaMsg();
+        //   // writeTxtFile();
+        // );
 
-        stream.to(topicOut, Produced.with(stringSerde, PersonCanon));
-
-        final KTable<String, PersonCanon> convertedTable = stream.toTable(Materialized.as("stream-converted-to-table"));
-        convertedTable.toStream().to(topicTableOut, Produced.with(stringSerde, PersonCanon));
-
-        final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        // Attach shutdown handler to catch Control-C.
-        Runtime.getRuntime().addShutdownHook(new Thread("streams-shutdown-hook") {
-            @Override
-            public void run() {
-                streams.close(Duration.ofSeconds(5));
-                latch.countDown();
+        // resource: https://stackoverflow.com/questions/39327868/print-kafka-stream-input-out-to-console
+        recordsRetrieved.foreach(new ForeachAction<String, IntegrationA>() {
+            public void apply(String key, IntegrationA value) {
+                System.out.println("Key:" + key + " | Value: " + value.toString());
             }
         });
+        
+        final KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        
+        streams.start();
 
-        try {
-            streams.cleanUp();
-            streams.start();
-            latch.await();
-        } catch (Throwable e) {
-            System.exit(1);
-        }
-        System.exit(0);
+        // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
 
     }
 
-    private static Serde<PersonCanon> getJsonSerdePersonCanon(){
+    private static Serde<IntegrationA> getJsonSerdeIntegrationA(){
 
         Map<String, Object> serdeProps = new HashMap<>();
-        serdeProps.put("json.value.type", PersonCanon.class);
+        serdeProps.put("json.value.type", IntegrationA.class);
 
-        final Serializer<PersonCanon> mySerializer = new KafkaJsonSerializer<>();
+        final Serializer<IntegrationA> mySerializer = new KafkaJsonSerializer<>();
         mySerializer.configure(serdeProps, false);
 
-        final Deserializer<PersonCanon> myDeserializer = new KafkaJsonDeserializer<>();
+        final Deserializer<IntegrationA> myDeserializer = new KafkaJsonDeserializer<>();
         myDeserializer.configure(serdeProps, false);
 
         return Serdes.serdeFrom(mySerializer, myDeserializer);
