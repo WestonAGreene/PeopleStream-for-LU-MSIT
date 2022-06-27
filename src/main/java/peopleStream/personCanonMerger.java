@@ -79,7 +79,7 @@ public class personCanonMerger {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 4) {
+        if (args.length != 5) {
           System.out.println("Please provide command line arguments: configPath topicIn topicOut topicTableOut");
           System.exit(1);
         }

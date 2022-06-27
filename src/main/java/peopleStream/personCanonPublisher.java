@@ -48,7 +48,7 @@ public class personCanonPublisher {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 3) {
+        if (args.length != 4) {
           System.out.println("Please provide command line arguments: configPath topicIn topicOut");
           System.exit(1);
         }
