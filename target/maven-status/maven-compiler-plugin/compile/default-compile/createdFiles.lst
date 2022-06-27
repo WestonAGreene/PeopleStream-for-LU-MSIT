@@ -1,5 +1,6 @@
 peopleStream/personCanonPublisher.class
 peopleStream/dataModels/PersonCanonSerializer.class
+peopleStream/IntegrationATransformerFrom.class
 peopleStream/integrationBUpdater$1.class
 peopleStream/integrationAUpdater.class
 peopleStream/integrationBUpdater.class
@@ -7,6 +8,7 @@ peopleStream/personCanonMerger.class
 peopleStream/integrationBRetriever.class
 peopleStream/personCanonMerger$1.class
 peopleStream/integrationARetriever$1.class
+peopleStream/PeopleStreamKafkaStream.class
 peopleStream/dataModels/IntegrationA.class
 peopleStream/dataModels/IntegrationB.class
 peopleStream/integrationBRetriever$1.class
@@ -18,4 +20,3 @@ peopleStream/integrationATransformerTo.class
 peopleStream/integrationBTransformerFrom.class
 peopleStream/integrationBTransformerTo.class
 peopleStream/dataModels/PersonCanonDeserializer.class
-peopleStream/integrationATransformerFrom.class

@@ -1,4 +1,5 @@
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/integrationBRetriever.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/PeopleStreamKafkaStream.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/personCanonMerger.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/integrationARetriever.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/dataModels/PersonCanonDeserializer.java
@@ -8,8 +9,8 @@
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/dataModels/IntegrationB.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/integrationBTransformerFrom.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/dataModels/PersonCanonSerializer.java
+/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/IntegrationATransformerFrom.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/dataModels/PersonCanon.java
-/Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/integrationATransformerFrom.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/dataModels/IntegrationA.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/dataModels/PersonCanonSerde.java
 /Users/wgreene/Documents/github/PeopleStream-for-LU-MSIT/src/main/java/peopleStream/integrationBUpdater.java

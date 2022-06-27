@@ -48,45 +48,63 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.kstream.ForeachAction;
-public class IntegrationATransformerFrom extends PeopleStreamKafkaStream {
 
-    final Serde<IntegrationA> integrationA = getJsonSerdeIntegrationA();
-    
-    IntegrationATransformerFrom() throws Exception {
-      super("integration-a--retrieves", "person-canon--input", "IntegrationATransformerFrom");
-    }
+public class PeopleStreamKafkaStream {
+    String topicIn = "";
+    String topicOut = "";
+    Properties props = null;
+    final Serde<PersonCanon> personCanon = getJsonSerdePersonCanon();
+    final Serde<String> stringSerde = Serdes.String();
+;
+    StreamsBuilder builder = null;
 
-    public static void main(String[] args) throws Exception {
-        IntegrationATransformerFrom integrationATransformerFrom = new IntegrationATransformerFrom();
-        final KStream<String, IntegrationA> recordsRetrieved = integrationATransformerFrom.builder
-          .stream(integrationATransformerFrom.topicIn, Consumed.with(integrationATransformerFrom.stringSerde, integrationATransformerFrom.integrationA));
+    PeopleStreamKafkaStream(String topicIn, String topicOut, String appName) throws Exception {
+        this.topicIn = topicIn;
+        createTopic(topicIn, props);
+        this.topicOut = topicOut;
+        createTopic(topicOut, props);
 
-        recordsRetrieved.print(Printed.<String, IntegrationA>toSysOut().withLabel("Consumed record"));
-        
-        KStream<String, PersonCanon> recordsTransformed = recordsRetrieved.mapValues(
-          record -> new PersonCanon(String.format("%s-TRANSFORMED", record.getData()))
-        );
-        recordsTransformed.print(Printed.<String, PersonCanon>toSysOut().withLabel("Transformed record"));
-        recordsTransformed.to(integrationATransformerFrom.topicOut, Produced.with(integrationATransformerFrom.stringSerde, integrationATransformerFrom.personCanon));
+        this.props = loadConfig("./.confluent/java.config.sensitive");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, appName);
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        final KafkaStreams streams = new KafkaStreams(integrationATransformerFrom.builder.build(), integrationATransformerFrom.props);
-        
-        streams.start();
-
-        // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        this.builder = new StreamsBuilder();
 
     }
 
-    private static Serde<IntegrationA> getJsonSerdeIntegrationA(){
+    public static Properties loadConfig(final String configFile) throws IOException {
+      if (!Files.exists(Paths.get(configFile))) {
+        throw new IOException(configFile + " not found.");
+      }
+      final Properties cfg = new Properties();
+      try (InputStream inputStream = new FileInputStream(configFile)) {
+        cfg.load(inputStream);
+      }
+      return cfg;
+    }
+
+    public static void createTopic(final String topic, final Properties cloudConfig) {
+        final NewTopic newTopic = new NewTopic(topic, Optional.empty(), Optional.empty());
+        try (final AdminClient adminClient = AdminClient.create(cloudConfig)) {
+            adminClient.createTopics(Collections.singletonList(newTopic)).all().get();
+        } catch (final InterruptedException | ExecutionException e) {
+            // Ignore if TopicExistsException, which may be valid if topic exists
+            if (!(e.getCause() instanceof TopicExistsException)) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static Serde<PersonCanon> getJsonSerdePersonCanon(){
 
         Map<String, Object> serdeProps = new HashMap<>();
-        serdeProps.put("json.value.type", IntegrationA.class);
+        serdeProps.put("json.value.type", PersonCanon.class);
 
-        final Serializer<IntegrationA> mySerializer = new KafkaJsonSerializer<>();
+        final Serializer<PersonCanon> mySerializer = new KafkaJsonSerializer<>();
         mySerializer.configure(serdeProps, false);
 
-        final Deserializer<IntegrationA> myDeserializer = new KafkaJsonDeserializer<>();
+        final Deserializer<PersonCanon> myDeserializer = new KafkaJsonDeserializer<>();
         myDeserializer.configure(serdeProps, false);
 
         return Serdes.serdeFrom(mySerializer, myDeserializer);
